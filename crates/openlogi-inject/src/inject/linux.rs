@@ -194,6 +194,8 @@ fn dispatch_generic_linux_native(action: &Action, native: NativeAction) {
         NativeAction::LaunchpadShow => {
             gnome_key_or_skip(action, &[KeyCode::KEY_LEFTMETA], KeyCode::KEY_A);
         }
+        NativeAction::NextApplication => super::app_switcher::step(true),
+        NativeAction::PreviousApplication => super::app_switcher::step(false),
         // On KDE, drive KWin's D-Bus API directly; elsewhere press the
         // desktop's own workspace chord (see `desktop_switch_mods`), which is
         // also what KDE falls back to when the KWin call is not handled.
@@ -239,6 +241,8 @@ fn dispatch_hyprland_native(action: &Action, native: NativeAction) {
                 run_helper_or_chord(helper, fallback);
             }
         }
+        NativeAction::NextApplication => super::app_switcher::step(true),
+        NativeAction::PreviousApplication => super::app_switcher::step(false),
         NativeAction::LockScreen => lock_screen_hyprland(),
         NativeAction::Screenshot | NativeAction::CaptureRegion => {
             press_key(&[], KeyCode::KEY_SYSRQ);

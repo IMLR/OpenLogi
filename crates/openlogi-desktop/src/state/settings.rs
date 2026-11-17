@@ -273,20 +273,31 @@ impl AppState {
         events
     }
 
-    /// Set the app-wide default thumb-wheel sensitivity and persist it —
-    /// devices without a per-device override follow it through the reloaded
-    /// capture plans. An already-set value writes nothing and is still
-    /// reported. Disk failures restore the persisted value and surface a
-    /// configuration error.
+    /// Set the app-wide thumb-wheel sensitivity and persist it. Moving the
+    /// Settings slider is a choice for every device, so it also clears the
+    /// per-device overrides that would otherwise keep it from taking effect;
+    /// a device's own slider can set one again. The agent picks the change up
+    /// through the reloaded capture plans. An already-set value with no
+    /// override left writes nothing and is still reported. Disk failures
+    /// restore the persisted values and surface a configuration error.
     pub fn commit_thumbwheel_sensitivity(
         &mut self,
         sensitivity: ThumbwheelSensitivity,
     ) -> StateEvents {
-        if self.config.app_settings.thumbwheel_sensitivity == sensitivity {
+        let overridden = self
+            .config
+            .devices
+            .values()
+            .any(|device| device.thumbwheel_sensitivity.is_some());
+        if self.config.app_settings.thumbwheel_sensitivity == sensitivity && !overridden {
             return StateEvent::SettingsChanged.into();
         }
-        self.config
-            .edit(|config| config.app_settings.thumbwheel_sensitivity = sensitivity);
+        self.config.edit(|config| {
+            config.app_settings.thumbwheel_sensitivity = sensitivity;
+            for device in config.devices.values_mut() {
+                device.thumbwheel_sensitivity = None;
+            }
+        });
         self.persist_and_reload("thumbwheel sensitivity");
         StateEvent::SettingsChanged.into()
     }

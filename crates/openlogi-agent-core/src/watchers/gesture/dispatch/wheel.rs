@@ -17,10 +17,6 @@ use openlogi_hid::thumbwheel::WheelResolution;
 /// slow intermittent nudges do not eventually cross the threshold.
 const ACTION_DECAY: Duration = Duration::from_millis(300);
 
-/// Minimum gap between two fires of the same discrete action, so one deliberate
-/// flick triggers once instead of repeating across a fast spin.
-const ACTION_COOLDOWN: Duration = Duration::from_millis(200);
-
 /// Bound synchronous action dispatch for one captured event.
 const MAX_REPEATS_PER_EVENT: i32 = 20;
 
@@ -175,8 +171,11 @@ impl WheelDirection {
                 (WheelOutput::Idle, last_fired)
             }
         } else {
-            let cooling_down = last_fired
-                .is_some_and(|time| now.saturating_duration_since(time) < ACTION_COOLDOWN);
+            // The sensitivity's cooldown keeps one deliberate flick from
+            // repeating across a fast spin.
+            let cooldown = next_binding.sensitivity.action_cooldown();
+            let cooling_down =
+                last_fired.is_some_and(|time| now.saturating_duration_since(time) < cooldown);
             if cooling_down {
                 (WheelOutput::Idle, last_fired)
             } else {

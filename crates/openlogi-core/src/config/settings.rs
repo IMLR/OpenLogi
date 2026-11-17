@@ -454,6 +454,22 @@ impl ThumbwheelSensitivity {
     pub fn action_threshold(self) -> i32 {
         (2 * i32::from(Self::DEFAULT) - i32::from(self)).max(1)
     }
+
+    /// Shortest gap between two fires of the same discrete thumb-wheel action,
+    /// so one deliberate flick fires once. It stays at 200 ms while a higher
+    /// sensitivity still lowers [`Self::action_threshold`], then shrinks
+    /// linearly to 40 ms at [`Self::MAX`], so the whole slider range keeps
+    /// speeding actions up once the threshold has reached one increment.
+    #[must_use]
+    pub fn action_cooldown(self) -> Duration {
+        const SLOWEST_MS: u64 = 200;
+        const FASTEST_MS: u64 = 40;
+        // The sensitivity at which the threshold reaches one increment.
+        let floor = 2 * u64::from(SENSITIVITY_DEFAULT) - 1;
+        let max = u64::from(SENSITIVITY_MAX);
+        let past_floor = u64::from(self.into_inner()).clamp(floor, max) - floor;
+        Duration::from_millis(SLOWEST_MS - (SLOWEST_MS - FASTEST_MS) * past_floor / (max - floor))
+    }
 }
 
 impl Default for ThumbwheelSensitivity {
@@ -1116,6 +1132,25 @@ mod tests {
             ThumbwheelSensitivity::from_rounded(f32::INFINITY),
             ThumbwheelSensitivity::MAX
         );
+    }
+
+    #[test]
+    fn every_sensitivity_step_speeds_discrete_actions_up() {
+        let speed = |raw: f32| {
+            let sensitivity = ThumbwheelSensitivity::from_rounded(raw);
+            (sensitivity.action_threshold(), sensitivity.action_cooldown())
+        };
+        for raw in 1..100_u8 {
+            let (threshold, cooldown) = speed(f32::from(raw));
+            let (next_threshold, next_cooldown) = speed(f32::from(raw + 1));
+            assert!(
+                next_threshold < threshold || next_cooldown < cooldown,
+                "sensitivity {} is no faster than {raw}",
+                raw + 1
+            );
+        }
+        assert_eq!(speed(27.0).1, Duration::from_millis(200));
+        assert_eq!(speed(100.0).1, Duration::from_millis(40));
     }
 
     #[test]

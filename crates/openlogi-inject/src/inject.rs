@@ -26,6 +26,9 @@ pub use macos::{VirtualKeyboard, is_virtual_keyboard_product};
 #[cfg(any(target_os = "macos", test))]
 mod space_switch;
 
+#[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
+mod app_switcher;
+
 #[cfg(target_os = "linux")]
 mod linux;
 

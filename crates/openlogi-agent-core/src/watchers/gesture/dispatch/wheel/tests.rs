@@ -219,7 +219,12 @@ fn custom_action_fires_on_threshold_then_respects_its_cooldown() {
         WheelOutput::Idle
     );
     assert_eq!(
-        direction.advance(&Action::NextTab, threshold, scale, now + ACTION_COOLDOWN),
+        direction.advance(
+            &Action::NextTab,
+            threshold,
+            scale,
+            now + ThumbwheelSensitivity::DEFAULT.action_cooldown()
+        ),
         WheelOutput::FireAction(1),
         "the same action may fire again at the cooldown boundary"
     );

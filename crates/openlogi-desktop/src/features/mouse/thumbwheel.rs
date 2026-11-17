@@ -20,6 +20,7 @@ pub(crate) enum ThumbwheelPreset {
     UndoRedo,
     BrowserHistory,
     Tabs,
+    Applications,
     Desktops,
     DesktopsReversed,
     Tracks,
@@ -33,11 +34,12 @@ pub(crate) enum ThumbwheelPreset {
 }
 
 impl ThumbwheelPreset {
-    pub(crate) const ALL: [Self; 14] = [
+    pub(crate) const ALL: [Self; 15] = [
         Self::BackForward,
         Self::UndoRedo,
         Self::BrowserHistory,
         Self::Tabs,
+        Self::Applications,
         Self::Desktops,
         Self::DesktopsReversed,
         Self::Tracks,
@@ -57,6 +59,7 @@ impl ThumbwheelPreset {
             Self::UndoRedo => (Action::Undo, Action::Redo),
             Self::BrowserHistory => (Action::BrowserBack, Action::BrowserForward),
             Self::Tabs => (Action::PrevTab, Action::NextTab),
+            Self::Applications => (Action::PreviousApplication, Action::NextApplication),
             Self::Desktops => (Action::PreviousDesktop, Action::NextDesktop),
             Self::DesktopsReversed => (Action::NextDesktop, Action::PreviousDesktop),
             Self::Tracks => (Action::PrevTrack, Action::NextTrack),
@@ -93,6 +96,7 @@ impl ThumbwheelPreset {
             Self::UndoRedo => "pointer.undo_redo",
             Self::BrowserHistory => "pointer.browser_back_forward",
             Self::Tabs => "pointer.previous_next_tab",
+            Self::Applications => "pointer.previous_next_application",
             Self::Desktops => "pointer.previous_next_desktop",
             Self::DesktopsReversed => "pointer.next_previous_desktop",
             Self::Tracks => "pointer.previous_next_track",
@@ -118,6 +122,7 @@ impl ThumbwheelPreset {
             Self::UndoRedo => "action-icons/redo-2.svg",
             Self::BrowserHistory => "action-icons/arrow-right.svg",
             Self::Tabs => "action-icons/chevron-right.svg",
+            Self::Applications => "action-icons/arrow-left-right.svg",
             Self::Desktops | Self::DesktopsReversed => "action-icons/square-arrow-right.svg",
             Self::Tracks => "action-icons/skip-forward.svg",
             Self::Volume | Self::VolumeReversed => "action-icons/volume-2.svg",
@@ -143,6 +148,7 @@ mod tests {
             (Action::Undo, Action::Redo),
             (Action::BrowserBack, Action::BrowserForward),
             (Action::PrevTab, Action::NextTab),
+            (Action::PreviousApplication, Action::NextApplication),
             (Action::PreviousDesktop, Action::NextDesktop),
             (Action::NextDesktop, Action::PreviousDesktop),
             (Action::PrevTrack, Action::NextTrack),

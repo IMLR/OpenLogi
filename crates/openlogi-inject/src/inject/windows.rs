@@ -282,6 +282,8 @@ fn dispatch_native(native: NativeAction) {
         NativeAction::NextDesktop => post_vk(VK_RIGHT, &[VK_LWIN, VK_CONTROL]),
         NativeAction::ShowDesktop => post_vk(VK_D, &[VK_LWIN]),
         NativeAction::LaunchpadShow => post_vk(VK_LWIN, &[]),
+        NativeAction::NextApplication => super::app_switcher::step(true),
+        NativeAction::PreviousApplication => super::app_switcher::step(false),
         NativeAction::LockScreen => post_vk(VK_L, &[VK_LWIN]),
         // Win+PrtScn saves a full-screen capture straight to
         // `Pictures\Screenshots` with no further click, like ⌘⇧3 on macOS.

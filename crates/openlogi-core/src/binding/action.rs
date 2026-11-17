@@ -264,6 +264,15 @@ pub enum Action {
     EasySwitchChannel2,
     /// Move the device to its third Easy-Switch channel.
     EasySwitchChannel3,
+    /// Step the system application switcher to the next application, as Logi
+    /// Options+ "Navigate between apps" does on the thumb wheel. The first step
+    /// holds the switcher modifier (Cmd on macOS, Alt elsewhere) and every
+    /// further step only taps Tab, so a run of steps walks the switcher; the
+    /// modifier is released once the steps pause, selecting the application.
+    /// Appended — variant order is wire format.
+    NextApplication,
+    /// Step the application switcher back (see [`Action::NextApplication`]).
+    PreviousApplication,
 }
 
 /// Which of a held chord's keys stay down for the lifetime of the press.
@@ -356,6 +365,8 @@ macro_rules! for_each_unit_action {
             NextDesktop "Next Desktop" "actions.next_desktop" Navigation NextDesktop,
             ShowDesktop "Show Desktop" "actions.show_desktop" Navigation Monitor,
             LaunchpadShow "Launchpad" "actions.launchpad" Navigation Applications,
+            NextApplication "Next App" "actions.next_application" Navigation NextTab,
+            PreviousApplication "Previous App" "actions.previous_application" Navigation PreviousTab,
             // System
             None "Do Nothing" "pointer.do_nothing" System Ban,
             LockScreen "Lock Screen" "actions.lock_screen" System Lock,

@@ -193,6 +193,11 @@ pub enum NativeAction {
     ShowDesktop,
     /// Open the application launcher.
     LaunchpadShow,
+    /// Step the application switcher forward, holding its modifier until
+    /// the steps pause.
+    NextApplication,
+    /// Step the application switcher back.
+    PreviousApplication,
     /// Lock the screen.
     LockScreen,
     /// Capture a full-screen screenshot.
@@ -257,6 +262,8 @@ impl Action {
             Action::NextDesktop => Effect::Native(NativeAction::NextDesktop),
             Action::ShowDesktop => Effect::Native(NativeAction::ShowDesktop),
             Action::LaunchpadShow => Effect::Native(NativeAction::LaunchpadShow),
+            Action::NextApplication => Effect::Native(NativeAction::NextApplication),
+            Action::PreviousApplication => Effect::Native(NativeAction::PreviousApplication),
 
             Action::LockScreen => Effect::Native(NativeAction::LockScreen),
             Action::Screenshot => Effect::Native(NativeAction::Screenshot),

@@ -229,9 +229,9 @@ pub fn install(cx: &mut App, settings: &AppSettings) {
     });
     cx.set_global(UpdaterObserver(observer));
 
-    if settings.check_for_updates {
-        start_background_check(&updater, settings.auto_install_updates, cx);
-    }
+    // This fork is built and installed locally. An update from the upstream
+    // feed would replace it, so it never checks on its own; a check the user
+    // asks for still runs.
     cx.set_global(SharedUpdater(updater));
 }
 
@@ -243,32 +243,9 @@ pub fn shared(cx: &App) -> Option<Entity<Updater>> {
 /// Run the check OpenLogi starts on its own — at launch, or right after the
 /// user opts in — as opposed to one the user asks for. It opens no window, and
 /// a found update downloads only when the user opted into automatic install.
-pub(crate) fn check_in_background(cx: &mut App) {
-    let Some(updater) = shared(cx) else {
-        return;
-    };
-    let auto_install =
-        AppState::try_read(cx).is_some_and(|state| state.app_settings().auto_install_updates);
-    start_background_check(&updater, auto_install, cx);
-}
-
-fn start_background_check(updater: &Entity<Updater>, auto_install: bool, cx: &mut App) {
-    let checked_by_sparkle = with_sparkle(updater, cx, |sparkle| {
-        if auto_install {
-            // Sparkle's unattended check: with automatic downloads mirrored
-            // on, a found update downloads and stages without any window.
-            sparkle.check_in_background();
-        } else {
-            // Ask the feed only; the answer lands in Settings → Updates.
-            sparkle.check_for_update_information();
-        }
-    });
-    if checked_by_sparkle.is_none() {
-        // The engine's check is silent; the observer installed by `install`
-        // downloads what it finds when the user opted in.
-        updater.update(cx, Updater::check);
-    }
-}
+///
+/// This fork never checks on its own (see [`install`]), so this does nothing.
+pub(crate) fn check_in_background(_cx: &mut App) {}
 
 /// Commit the user's automatic-install choice from Settings → Updates and
 /// mirror it into Sparkle.

@@ -271,6 +271,8 @@ fn dispatch_native(native: NativeAction) {
         NativeAction::NextDesktop => next_desktop(),
         NativeAction::ShowDesktop => show_desktop(),
         NativeAction::LaunchpadShow => launchpad(),
+        NativeAction::NextApplication => super::app_switcher::step(true),
+        NativeAction::PreviousApplication => super::app_switcher::step(false),
         NativeAction::LockScreen => press_combo(&super::parse_shortcut(LOCK_SCREEN_CHORD)),
         NativeAction::Screenshot => screenshot(),
         NativeAction::CaptureRegion => capture_region(),

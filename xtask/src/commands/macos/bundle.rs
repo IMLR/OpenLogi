@@ -29,6 +29,10 @@ pub(super) use embed::{EmbeddedHelper, HELPERS, agent_service_label, write_agent
 pub(super) use provisioning::{AGENT_PROFILE_ENV, AgentProfile};
 pub(super) use signing::{SIGN_IDENTITY_ENV, quoted_identity};
 
+/// Local identity a production-channel bundle is signed with when it is built
+/// to install on this Mac rather than to ship (no secure timestamp).
+const LOCAL_PRODUCTION_IDENTITY_ENV: &str = "OPENLOGI_LOCAL_PRODUCTION_IDENTITY";
+
 #[derive(Clone, Copy, ValueEnum)]
 pub(crate) enum DistributionTarget {
     #[value(name = "aarch64-apple-darwin")]
@@ -188,9 +192,21 @@ fn build_bundle(
                 agent_profile,
             )?;
         }
-        (Channel::Production, None) => {
-            println!("==> codesign: skipped (unsigned — set {SIGN_IDENTITY_ENV} to sign)");
-        }
+        // A locally installed fork build takes the production identity on
+        // purpose. Signing it with a stable local identity keeps the
+        // Accessibility and Input Monitoring grants across rebuilds; it claims
+        // no entitlement that needs a provisioning profile.
+        (Channel::Production, None) => match env::var(LOCAL_PRODUCTION_IDENTITY_ENV) {
+            Ok(identity) if !identity.trim().is_empty() => signing::sign_app_with_timestamp(
+                &identity,
+                signing::TimestampMode::None,
+                channel,
+                None,
+            )?,
+            _ => println!(
+                "==> codesign: skipped (unsigned — set {SIGN_IDENTITY_ENV} or {LOCAL_PRODUCTION_IDENTITY_ENV} to sign)"
+            ),
+        },
         (Channel::Dev, _) => signing::local_sign_app_if_available(channel)?,
     }
     println!();
