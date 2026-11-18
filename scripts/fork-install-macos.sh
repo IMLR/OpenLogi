@@ -25,7 +25,8 @@ app=target/release/bundle/osx/OpenLogi.app
 osascript -e 'quit app id "org.openlogi.openlogi"' 2>/dev/null || true
 rm -rf /Applications/OpenLogi.app
 ditto "$app" /Applications/OpenLogi.app
-# 后台服务由 launchd 管理，重启后加载新的程序
-launchctl kickstart -k "gui/$(id -u)/org.openlogi.agent.service" 2>/dev/null || true
+# 版本号不变时应用不会重新登记后台服务；删掉登记记录，让它按新签名重新登记，
+# 否则 launchd 会因启动约束与签名不符而拒绝启动后台服务
+rm -f "$HOME/.local/share/openlogi/registration-version"
 open /Applications/OpenLogi.app
 echo "已安装：/Applications/OpenLogi.app（签名：$identity）"

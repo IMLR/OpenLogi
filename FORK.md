@@ -18,7 +18,9 @@
 scripts/fork-install-macos.sh
 ```
 
-脚本会构建 `target/release/bundle/osx/OpenLogi.app`，用本机第一个 Apple Development 证书签名，替换 `/Applications/OpenLogi.app`，并重启后台服务。证书不变时，「辅助功能」和「输入监控」权限在重新构建后保留。
+脚本会构建 `target/release/bundle/osx/OpenLogi.app`，用本机第一个 Apple Development 证书签名，替换 `/Applications/OpenLogi.app`，删除后台服务的登记记录（`~/.local/share/openlogi/registration-version`）后启动应用，让后台服务按新签名重新登记。证书不变时，「辅助功能」和「输入监控」权限在重新构建后保留。
+
+从官方版本第一次换过来时，还需要：先 `brew uninstall --cask openlogi`（配置会保留），安装后用 `tccutil reset All org.openlogi.agent`（`org.openlogi.openlogi` 同理）清除官方签名留下的权限记录，再在「隐私与安全性 → 辅助功能」里打开 OpenLogi Agent。
 
 ## 限制
 
